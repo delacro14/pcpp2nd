@@ -19,7 +19,7 @@ public class ConcurrentSetTest {
 
     // Variable with set under test
     private ConcurrentIntegerSet set;
-    private int counter;
+    private volatile int counter;
 
     CyclicBarrier barrier;
     private final static ExecutorService pool = Executors.newCachedThreadPool();
@@ -40,7 +40,7 @@ public class ConcurrentSetTest {
         // set = new ConcurrentIntegerSetLibrary();
     }
 
-//    @Test
+    //    @Test
     @RepeatedTest(7000)
     @DisplayName("Add Function")
 //    @Disabled
@@ -58,7 +58,7 @@ public class ConcurrentSetTest {
         } catch (InterruptedException | BrokenBarrierException e) {
             e.printStackTrace();
         }
-        assertTrue(N == set.size(), "set.size() == " + set.size() + "," +
+        assertTrue(N == counter, "set.size() == " + counter + "," +
                 " but we expected " + N);
     }
 
@@ -83,8 +83,8 @@ public class ConcurrentSetTest {
             e.printStackTrace();
         }
 
-        assertTrue(nrThreads - N == set.size(), "set.size() == " + set.size() + "," +
-                " but we expected " + (nrThreads-N));
+        assertTrue(nrThreads - N == nrThreads-counter, "set.size() == " + set.size() + "," +
+                " but we expected " + (nrThreads-counter));
     }
     // TODO: Define your tests below
     public class ConcurrentIntegerBuggyAdd extends Thread {
@@ -99,8 +99,9 @@ public class ConcurrentSetTest {
             try {
                 barrier.await();
                 for (int i = 0; i < N; i++) {
-                    set.add(i);
-
+                    if(set.add(i)) {
+                        counter++;
+                    }
                 }
                 barrier.await();
             } catch (InterruptedException | BrokenBarrierException e) {
@@ -121,7 +122,9 @@ public class ConcurrentSetTest {
             try {
                 barrier.await();
                 for (int i = 0; i < N; i++) {
-                    set.remove(i);
+                    if (set.remove(i)){
+                        counter++;
+                    }
                 }
                 barrier.await();
             } catch (InterruptedException | BrokenBarrierException e) {
