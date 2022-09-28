@@ -15,32 +15,26 @@ public class BoundedBuffer implements BoundedBufferInteface<String> {
     }
 
     public void insert(String element) throws InterruptedException {
-        sem.acquire(); 
-        boolean wasAdded = false; 
-        try { 
-            wasAdded = list.add(element); 
+        try {  
+            
+            sem.acquire();
+            list.add(element); 
             System.out.println("add");
         } finally { 
-            if (!wasAdded) 
             sem.release(); 
             System.out.println("relesed in add");
         } 
     }
 
     public String take() throws InterruptedException {
-        String wasAdded = "";
         try {
-            wasAdded = list.remove();
-            System.out.println(wasAdded);
+            sem.acquire();
+            String e = list.remove();
             System.out.println("remove");
-            return wasAdded;
+            return e;
         } finally {
-            if (!wasAdded.isEmpty()) {
-                sem.release();
-                System.out.println("released in take");
-            } else {
-                return wasAdded;
-            }
+            sem.release();
+            System.out.println("released in take");
         }
     }
 }

@@ -9,8 +9,11 @@ public class test {
             new Thread(() -> {
     
                 try{
-                    list.insert("smth");
+                    list.insert("element");
                 } catch (InterruptedException e){
+                    e.printStackTrace();
+                    System.exit(-1);
+                } catch (Exception e) {
                     e.printStackTrace();
                     System.exit(-1);
                 }
@@ -23,6 +26,9 @@ public class test {
                 } catch (InterruptedException e){
                     e.printStackTrace();
                     System.exit(-1);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    System.exit(-1);
                 }
             }).start();
             
@@ -31,6 +37,6 @@ public class test {
     }
 
     public static void main(String[] args) {
-        run(10, 1);
+        run(20, 1);
     }
 }
