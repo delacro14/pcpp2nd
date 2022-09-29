@@ -1,9 +1,7 @@
 package testingconcurrency;
 
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +24,9 @@ public class ConcurrentSetTest {
 
 
     // TODO: Very likely you should add more variables here
+    private synchronized void increaseCount() {
+        this.counter++;
+    }
 
 
     // Uncomment the appropriate line below to choose the class to
@@ -100,7 +101,7 @@ public class ConcurrentSetTest {
                 barrier.await();
                 for (int i = 0; i < N; i++) {
                     if(set.add(i)) {
-                        counter++;
+                        increaseCount();
                     }
                 }
                 barrier.await();
@@ -123,7 +124,7 @@ public class ConcurrentSetTest {
                 barrier.await();
                 for (int i = 0; i < N; i++) {
                     if (set.remove(i)){
-                        counter++;
+                        increaseCount();
                     }
                 }
                 barrier.await();
