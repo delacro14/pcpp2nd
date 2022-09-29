@@ -6,36 +6,44 @@ import java.util.LinkedList;
 import java.util.concurrent.Semaphore;
 
 public class BoundedBuffer implements BoundedBufferInteface<String> {
-    private final LinkedList<String> list; 
-    private final Semaphore sem;
-    
-    public BoundedBuffer(int bound) {
-        this.list = new LinkedList<>(); 
-        sem = new Semaphore(bound);
+    private final Semaphore availableItems, availableSpaces, semaphore;
+    private final LinkedList<String> items;
+    public BoundedBuffer(int capacity) {
+        availableItems = new Semaphore(0);
+        availableSpaces = new Semaphore(capacity);
+        semaphore = new Semaphore(1);
+        items = new LinkedList<>(); ;
     }
-
-    public void insert(String element) throws InterruptedException {
-        try {  
-            
-            sem.acquire();
-            list.add(element); 
-            System.out.println("add");
-        } finally { 
-            sem.release(); 
-            System.out.println("relesed in add");
-        } 
+    public boolean isEmpty() {
+        return availableItems.availablePermits() == 0;
     }
-
+    public boolean isFull() {
+        return availableSpaces.availablePermits() == 0;
+    }
+    public void insert(String elem)throws InterruptedException {
+        System.out.println("Insert: starts");
+        availableSpaces.acquire();
+        System.out.println("Insert: takes availableSpace");
+        semaphore.acquire();
+        System.out.println("Insert: adding element");
+        items.add(elem);
+        semaphore.release();
+        System.out.println("Insert: releasing availableItems");
+        availableItems.release();
+        System.out.println("Insert: finished");
+    }
     public String take() throws InterruptedException {
-        try {
-            sem.acquire();
-            String e = list.remove();
-            System.out.println("remove");
-            return e;
-        } finally {
-            sem.release();
-            System.out.println("released in take");
-        }
+        System.out.println("take: starts");
+        availableItems.acquire();
+        System.out.println("take: takes availableItems");
+        semaphore.acquire();
+        System.out.println("take: removing element");
+        String item = items.remove();
+        semaphore.release();
+        System.out.println("take: releasing availableSpace");
+        availableSpaces.release();
+        System.out.println("take: finished");
+        return item;
     }
 }
 
